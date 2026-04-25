@@ -4,6 +4,17 @@
 # กฎ: ห้ามเขียนทับ — append only
 
 ---
+
+## [1.5.7] 2026-04-26
+### Fixed (Chat E — wp_cpi_logs table doesn't exist)
+- `class-cpi-activator.php`: เพิ่ม maybe_setup() — เรียก create_upload_dir()
+  + create_log_table() เมื่อ cpi_db_version option ไม่ตรงกับ CPI_VERSION;
+  ใช้ dbDelta() ซึ่งปลอดภัย ไม่ทับ table ที่มีข้อมูลอยู่แล้ว
+- `csv-post-importer.php`: cpi_init() เรียก CPI_Activator::maybe_setup()
+  ทุกครั้งที่โหลด — ครอบคลุมกรณี upload ไฟล์ทับผ่าน FTP โดยไม่ deactivate
+  (activation hook ไม่ยิง); อัปเดต CPI_VERSION → 1.5.7
+
+---
 ## [1.5.6] 2026-04-26
 ### Fixed (Chat E — Cumulative fix: menu + preview + import loop)
 

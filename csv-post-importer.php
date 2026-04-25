@@ -3,7 +3,7 @@
  * Plugin Name:       CSV Post Importer
  * Plugin URI:        https://github.com/your-repo/csv-post-importer
  * Description:       Import posts from CSV with featured image (Media Library or URL) and category/sub-category mapping, import modes, and error logging.
- * Version:           1.5.1
+ * Version:           1.5.7
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Webwecreate.com
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Plugin version. */
-define( 'CPI_VERSION', '1.5.1' );
+define( 'CPI_VERSION', '1.5.7' );
 
 /** Absolute path to plugin directory (with trailing slash). */
 define( 'CPI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -113,6 +113,10 @@ register_deactivation_hook( __FILE__, 'cpi_deactivate' );
  */
 function cpi_init() {
 	if ( is_admin() && class_exists( 'CPI_Admin' ) ) {
+		// Ensure DB table and upload dir exist on every load.
+		// Covers cases where activation hook didn't fire (e.g. manual file upload).
+		CPI_Activator::maybe_setup();
+
 		$admin = new CPI_Admin();
 		$admin->init();
 	}

@@ -36,6 +36,23 @@ class CPI_Activator {
 		self::create_log_table();
 	}
 
+	/**
+	 * Ensure the plugin environment is set up correctly on every load.
+	 *
+	 * Runs create_upload_dir() and create_log_table() only when the stored
+	 * DB version doesn't match the current plugin version — covers cases
+	 * where activation hook didn't fire (manual FTP upload, staging copy, etc.)
+	 *
+	 * @since  1.5.7
+	 * @return void
+	 */
+	public static function maybe_setup() {
+		if ( get_option( 'cpi_db_version' ) !== CPI_VERSION ) {
+			self::create_upload_dir();
+			self::create_log_table();
+		}
+	}
+
 	// ─── Private Helpers ─────────────────────────────────────────────────────
 
 	/**
