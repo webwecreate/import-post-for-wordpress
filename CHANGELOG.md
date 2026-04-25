@@ -6,6 +6,17 @@
 
 ---
 
+## [1.3.0] 2026-04-26
+### Added (Chat B — CSV Parser + Admin UI)
+- `class-cpi-csv-parser.php` — CPI_CSV_Parser: parse(), get_headers(), get_preview($limit=5), count_rows(); UTF-8 BOM strip; path security validation ให้อยู่ใน CPI_UPLOAD_DIR เท่านั้น
+- `class-cpi-admin.php` — CPI_Admin: register_menu() (Tools > CSV Post Importer + Import Logs), enqueue_scripts(), handle_upload() AJAX, handle_import() AJAX + run_import_loop() + map_row() + parse_mapping_config(), handle_clear_logs() AJAX; nonce ทุก endpoint; delegate ไปยัง CPI_Post_Creator / CPI_Category_Handler / CPI_Image_Handler / CPI_Logger
+- `admin/views/page-import.php` — Step 1: drag & drop upload zone, xhr progress bar, preview table (render จาก JS), ปุ่ม Next
+- `admin/views/page-mapping.php` — Step 2: mapping table 4 sections (Post Fields / Featured Image / Categories / Import Mode); radio Filename/URL; Category Assign Mode (All/Deepest/Custom); Import Mode (Create/Update) + Unique Key (post_title/post_id/post_slug/custom_meta); collapsible CSV preview
+- `admin/css/cpi-admin.css` — styles: step indicator, cards, upload zone, progress, mapping table, radio groups, status badges, result stat cards, log page, responsive
+- `admin/js/cpi-admin.js` — AJAX upload + drag & drop + xhr progress; preview table render; Import Mode toggle; unique key type toggle; assign mode toggle; image mode toggle; radio label highlight; Run Import AJAX; clear logs AJAX
+
+---
+
 ## [1.2.0] 2026-04-25
 ### Added (Chat A — Bootstrap + Activator + Logger)
 - `csv-post-importer.php` — Plugin bootstrap: constants (CPI_VERSION, CPI_PLUGIN_DIR, CPI_PLUGIN_URL, CPI_UPLOAD_DIR, CPI_LOG_TABLE), cpi_load_dependencies(), activation/deactivation hooks, cpi_init() via plugins_loaded
