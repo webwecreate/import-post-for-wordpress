@@ -3,7 +3,27 @@
 # Format: [Version] Date — Description
 # กฎ: ห้ามเขียนทับ — append only
 
+---
 
+## [1.4.0] 2026-04-26
+### Added (Chat C — Post Creator + Category Handler)
+- `class-cpi-post-creator.php` — CPI_Post_Creator:
+  - create_or_update($row_data, $mapping, $import_id) → {post_id, status, message}
+  - find_existing_post($value, $unique_key, $meta_key) — ค้นด้วย post_title/post_id/post_slug/custom_meta
+  - create_post($row_data) — wp_insert_post() + fires cpi_before/after_insert_post + save_extra_meta()
+  - update_post($post_id, $row_data) — wp_update_post() + fires cpi_before/after_update_post + save_extra_meta()
+  - apply_filters cpi_row_data ก่อน insert/update ทุกครั้ง
+  - sanitize ทุก core field: post_title, post_content (wp_kses_post), post_status (whitelist), post_type, post_date, post_excerpt, post_name
+  - extra fields (non-core) → update_post_meta() อัตโนมัติ
+  - ถ้า error → throw Exception → caller (CPI_Admin) รับไป log ผ่าน CPI_Logger
+- `class-cpi-category-handler.php` — CPI_Category_Handler:
+  - assign($post_id, $category_data, $assign_mode, $custom_levels) → {success, message}
+  - get_or_create_term($name, $parent_id) — ค้น slug → ค้น name (case-insensitive) → wp_insert_term(); handle term_exists error
+  - build_term_tree($category_data) → {success, message, term_tree} — สร้าง hierarchy main→parent_sub→sub; ข้าม level ว่างได้
+  - resolve_assign_ids($term_tree, $assign_mode, $custom_levels) — all/deepest/custom
+  - apply_filters cpi_category_assign_ids ก่อน wp_set_post_terms
+  - ถ้า error → return {success:false, message} → caller log ผ่าน CPI_Logger
+  
 ---
 
 ## [1.3.0] 2026-04-26
