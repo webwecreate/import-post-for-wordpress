@@ -3,6 +3,29 @@
 # Format: [Version] Date — Description
 # กฎ: ห้ามเขียนทับ — append only
 
+
+---
+
+## [1.5.0] 2026-04-26
+### Added (Chat D — Image Handler + Result Page + Log Page)
+- `class-cpi-image-handler.php` — CPI_Image_Handler:
+  - set_featured_image($post_id, $value, $image_mode, $import_id) → {success, message}
+  - find_by_filename($filename) — ค้น attachment 3 วิธี: post_title / guid LIKE / _wp_attached_file meta; apply_filters cpi_image_search_args ก่อน WP_Query
+  - download_from_url($url, $post_id) → attachment_id|WP_Error — validate URL, require media.php on-demand, media_sideload_image()
+  - Return array {success, message} เสมอ — ไม่ throw exception
+- `admin/views/page-result.php` — Step 3 Import Result:
+  - Resolve import_id จาก GET หรือ transient cpi_last_import_id_{user_id}
+  - Summary cards: Total / Created / Updated / Skipped / Errors
+  - Filter bar link-based: Errors Only (default) / All / แต่ละ status
+  - Result table: Row# / Filename / Post Title / Status badge / Message (decode JSON)
+  - ปุ่ม Import Again + View Full Logs
+- `admin/views/page-logs.php` — Import Logs Viewer:
+  - Filter bar: dropdown import run + dropdown status + Apply Filter
+  - Mini summary cards ของ run ที่เลือก
+  - Log table: Row# / Filename / Status badge / Message / Date; pagination 50 rows/page
+  - Clear This Run + Clear All Logs via AJAX + confirm dialog + feedback + auto-reload
+  - Empty state เมื่อไม่มี log
+
 ---
 
 ## [1.4.0] 2026-04-26
@@ -23,7 +46,7 @@
   - resolve_assign_ids($term_tree, $assign_mode, $custom_levels) — all/deepest/custom
   - apply_filters cpi_category_assign_ids ก่อน wp_set_post_terms
   - ถ้า error → return {success:false, message} → caller log ผ่าน CPI_Logger
-  
+
 ---
 
 ## [1.3.0] 2026-04-26
