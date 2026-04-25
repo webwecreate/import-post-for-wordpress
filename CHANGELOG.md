@@ -4,6 +4,32 @@
 # กฎ: ห้ามเขียนทับ — append only
 
 ---
+## [1.5.6] 2026-04-26
+### Fixed (Chat E — Cumulative fix: menu + preview + import loop)
+
+- `admin/class-cpi-admin.php`:
+  [1.5.1] register_menu(): add_management_page() → add_menu_page() standalone
+          top-level; dashicons-media-spreadsheet; position 30; submenu Import +
+          Import Logs ใต้ csv-post-importer
+  [1.5.1] enqueue_scripts(): hook suffix tools_page_ → toplevel_page_ และ
+          csv-importer_page_
+  [1.5.2] run_import_loop(): create_or_update() เพิ่ม $import_id arg ที่ขาด
+  [1.5.2] handle_import(): redirect tools.php → admin.php
+  [1.5.2] handle_upload(): get_preview($path,5) → parse() ดึงครบทุก row;
+          เพิ่ม instantiate $parser; get_headers() แยก
+  [1.5.3] run_import_loop(): CPI_Logger::STATUS_* ทุกตัว → string literals
+          'success','updated','skipped','error','image_error','category_error'
+  [1.5.5] run_import_loop(): assign_categories() → assign(); สร้าง
+          $category_data (main/parent_sub/sub) จาก $row_data; extract
+          assign_mode + custom_levels จาก $mapping; is_wp_error → !['success']
+  [1.5.5] run_import_loop(): set_featured_image เพิ่ม $import_id; 
+          is_wp_error → !$img_result['success']
+
+- `admin/views/page-mapping.php`:
+  [1.5.4] preview table: เพิ่ม label "Total: N rows"; เพิ่มคอลัมน์ #
+  [1.5.4] ปุ่ม "Back to Upload": tools.php → admin.php
+
+---
 
 ## [1.5.4] 2026-04-26
 ### Fixed (Chat E — Preview ครบทุก record ใน Step 2)

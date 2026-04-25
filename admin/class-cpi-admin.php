@@ -7,7 +7,7 @@
  *
  * @package    CSV_Post_Importer
  * @subpackage Admin
- * @since      1.5.2
+  * @since      1.5.6
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -66,22 +66,33 @@ class CPI_Admin {
 	// =========================================================================
 
 	/**
-	 * Register admin menu under Tools.
+	 * Register standalone top-level admin menu.
 	 *
-	 * @since 1.0.0
+	 * @since 1.5.1
 	 * @return void
 	 */
 	public function register_menu() {
-		add_management_page(
+		add_menu_page(
 			__( 'CSV Post Importer', 'csv-post-importer' ),
-			__( 'CSV Post Importer', 'csv-post-importer' ),
+			__( 'CSV Importer', 'csv-post-importer' ),
+			'import',
+			'csv-post-importer',
+			array( $this, 'render_import_page' ),
+			'dashicons-media-spreadsheet',
+			30
+		);
+
+		add_submenu_page(
+			'csv-post-importer',
+			__( 'Import', 'csv-post-importer' ),
+			__( 'Import', 'csv-post-importer' ),
 			'import',
 			'csv-post-importer',
 			array( $this, 'render_import_page' )
 		);
 
 		add_submenu_page(
-			'tools.php',
+			'csv-post-importer',
 			__( 'Import Logs', 'csv-post-importer' ),
 			__( 'Import Logs', 'csv-post-importer' ),
 			'import',
@@ -103,8 +114,8 @@ class CPI_Admin {
 	 */
 	public function enqueue_scripts( $hook ) {
 		$plugin_pages = array(
-			'tools_page_csv-post-importer',
-			'tools_page_csv-post-importer-logs',
+			'toplevel_page_csv-post-importer',
+			'csv-importer_page_csv-post-importer-logs',
 		);
 
 		if ( ! in_array( $hook, $plugin_pages, true ) ) {
@@ -457,9 +468,17 @@ class CPI_Admin {
 
 			// Assign categories.
 			if ( ! empty( $row_data['category'] ) || ! empty( $row_data['parent_sub_category'] ) || ! empty( $row_data['sub_category'] ) ) {
-				$cat_result = $cat_handler->assign_categories( $post_id, $row_data, $mapping );
-				if ( is_wp_error( $cat_result ) ) {
-					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'category_error', $cat_result->get_error_message() );
+				$category_data = array(
+					'main'       => $row_data['category']            ?? '',
+					'parent_sub' => $row_data['parent_sub_category'] ?? '',
+					'sub'        => $row_data['sub_category']        ?? '',
+				);
+				$assign_mode   = $mapping['assign_mode']   ?? 'all';
+				$custom_levels = $mapping['assign_levels'] ?? array();
+
+				$cat_result = $cat_handler->assign( $post_id, $category_data, $assign_mode, $custom_levels );
+				if ( ! $cat_result['success'] ) {
+					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'category_error', $cat_result['message'] );
 					$summary['category_error']++;
 					$log_status = 'category_error';
 				}
@@ -467,9 +486,9 @@ class CPI_Admin {
 
 			// Set featured image.
 			if ( ! empty( $row_data['featured_image'] ) ) {
-				$img_result = $img_handler->set_featured_image( $post_id, $row_data['featured_image'], $mapping['image_mode'] );
-				if ( is_wp_error( $img_result ) ) {
-					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'image_error', $img_result->get_error_message() );
+				$img_result = $img_handler->set_featured_image( $post_id, $row_data['featured_image'], $mapping['image_mode'], $import_id );
+				if ( ! $img_result['success'] ) {
+					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'image_error', $img_result['message'] );
 					$summary['image_error']++;
 					if ( 'success' === $log_status || 'updated' === $log_status ) {
 						$log_status = 'image_error';
