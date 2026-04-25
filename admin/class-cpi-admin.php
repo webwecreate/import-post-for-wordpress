@@ -7,7 +7,7 @@
  *
  * @package    CSV_Post_Importer
  * @subpackage Admin
- * @since      1.5.1
+ * @since      1.5.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -66,36 +66,22 @@ class CPI_Admin {
 	// =========================================================================
 
 	/**
-	 * Register standalone top-level admin menu.
+	 * Register admin menu under Tools.
 	 *
-	 * @since 1.5.1
+	 * @since 1.0.0
 	 * @return void
 	 */
 	public function register_menu() {
-		// Top-level menu — visible in the main sidebar.
-		add_menu_page(
+		add_management_page(
 			__( 'CSV Post Importer', 'csv-post-importer' ),
-			__( 'CSV Importer', 'csv-post-importer' ),
-			'import',
-			'csv-post-importer',
-			array( $this, 'render_import_page' ),
-			'dashicons-media-spreadsheet',
-			30
-		);
-
-		// Rename the auto-created first submenu item.
-		add_submenu_page(
-			'csv-post-importer',
-			__( 'Import', 'csv-post-importer' ),
-			__( 'Import', 'csv-post-importer' ),
+			__( 'CSV Post Importer', 'csv-post-importer' ),
 			'import',
 			'csv-post-importer',
 			array( $this, 'render_import_page' )
 		);
 
-		// Import Logs submenu.
 		add_submenu_page(
-			'csv-post-importer',
+			'tools.php',
 			__( 'Import Logs', 'csv-post-importer' ),
 			__( 'Import Logs', 'csv-post-importer' ),
 			'import',
@@ -117,8 +103,8 @@ class CPI_Admin {
 	 */
 	public function enqueue_scripts( $hook ) {
 		$plugin_pages = array(
-			'toplevel_page_csv-post-importer',
-			'csv-importer_page_csv-post-importer-logs',
+			'tools_page_csv-post-importer',
+			'tools_page_csv-post-importer-logs',
 		);
 
 		if ( ! in_array( $hook, $plugin_pages, true ) ) {
@@ -265,16 +251,22 @@ class CPI_Admin {
 			wp_send_json_error( array( 'message' => __( 'Could not save uploaded file.', 'csv-post-importer' ) ) );
 		}
 
-		// Parse preview.
-		$parser  = new CPI_CSV_Parser();
-		$preview = $parser->get_preview( $dest_path, 5 );
-
-		if ( is_wp_error( $preview ) ) {
+		// Parse full file: headers + ALL rows for complete pre-import preview.
+		$parser   = new CPI_CSV_Parser();
+		$all_rows = $parser->parse( $dest_path );
+		if ( is_wp_error( $all_rows ) ) {
 			@unlink( $dest_path ); // phpcs:ignore
-			wp_send_json_error( array( 'message' => $preview->get_error_message() ) );
+			wp_send_json_error( array( 'message' => $all_rows->get_error_message() ) );
 		}
 
-		$row_count = $parser->count_rows( $dest_path );
+		$headers = $parser->get_headers( $dest_path );
+		if ( is_wp_error( $headers ) ) {
+			@unlink( $dest_path ); // phpcs:ignore
+			wp_send_json_error( array( 'message' => $headers->get_error_message() ) );
+		}
+
+		$preview   = array( 'headers' => $headers, 'rows' => $all_rows );
+		$row_count = count( $all_rows );
 
 		// Store in transients.
 		set_transient( self::TRANSIENT_CSV_PATH . $session_id, $dest_path, self::TRANSIENT_EXPIRY );
@@ -356,7 +348,7 @@ class CPI_Admin {
 						'step'       => '3',
 						'session_id' => rawurlencode( $session_id ),
 					),
-					admin_url( 'tools.php' )
+					admin_url( 'admin.php' )
 				),
 			)
 		);
@@ -444,7 +436,7 @@ class CPI_Admin {
 			}
 
 			// Create or update post.
-			$result = $creator->create_or_update( $row_data, $mapping );
+			$result = $creator->create_or_update( $row_data, $mapping, $import_id );
 
 			if ( is_wp_error( $result ) ) {
 				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], CPI_Logger::STATUS_ERROR, $result->get_error_message() );

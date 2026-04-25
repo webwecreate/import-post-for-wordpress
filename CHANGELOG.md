@@ -5,6 +5,21 @@
 
 ---
 
+## [1.5.2] 2026-04-26
+### Fixed (Chat E — Import 500 + Preview ครบทุก record)
+- `class-cpi-admin.php`:
+  - Bug: run_import_loop() → create_or_update() ส่งแค่ 2 args แทน 3
+    (ขาด $import_id) → PHP 8 TypeError → HTTP 500; เพิ่ม $import_id
+  - Bug: redirect หลัง import ชี้ไป admin_url('tools.php') ซึ่งผิดหลังย้ายเมนู
+    เป็น top-level; แก้เป็น admin_url('admin.php')
+  - Bug: handle_upload() เรียก get_preview($path,5) hardcoded 5 rows;
+    เปลี่ยนเป็น parse() ดึงทุก row + get_headers() แยก; เพิ่ม instantiate $parser
+- `admin/js/cpi-admin.js`:
+  - renderPreview() เพิ่มคอลัมน์ # (row number) นำหน้า; render ครบทุก row;
+    แสดง "scroll to review all" เมื่อ row_count > 20
+
+---
+
 ## [1.5.1] 2026-04-26
 ### Fixed (Chat E — Bug Fix: Menu not visible)
 - `csv-post-importer.php`: uncomment ทุก require ใน cpi_load_dependencies()

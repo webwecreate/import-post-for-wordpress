@@ -162,7 +162,7 @@
 	}
 
 	/**
-	 * Render the CSV preview table after upload.
+	 * Render the CSV preview table after upload — shows ALL rows.
 	 *
 	 * @param {Object} data  AJAX success data payload.
 	 */
@@ -172,22 +172,32 @@
 			data.row_count + ' rows · ' + data.headers.length + ' columns'
 		);
 
-		// Build header row.
+		// Build header row — prepend a # column for row numbers.
 		var $tr = $( '<tr>' );
+		$tr.append( $( '<th>' ).text( '#' ).addClass( 'cpi-col-rownum' ) );
 		$.each( data.headers, function( i, h ) {
 			$tr.append( $( '<th>' ).text( h ) );
 		} );
 		$previewThead.html( '' ).append( $tr );
 
-		// Build data rows.
+		// Build ALL data rows.
 		var $tbody = $previewTbody.html( '' );
 		$.each( data.rows, function( i, row ) {
 			var $row = $( '<tr>' );
+			// Row number cell.
+			$row.append( $( '<td>' ).text( i + 1 ).addClass( 'cpi-col-rownum' ) );
 			$.each( data.headers, function( j, h ) {
 				$row.append( $( '<td>' ).text( row[ h ] || '' ) );
 			} );
 			$tbody.append( $row );
 		} );
+
+		// Show scroll hint only when table is large.
+		if ( data.row_count > 20 ) {
+			$previewMeta.text(
+				data.row_count + ' rows · ' + data.headers.length + ' columns — scroll to review all'
+			);
+		}
 	}
 
 	/* ==================================================================
