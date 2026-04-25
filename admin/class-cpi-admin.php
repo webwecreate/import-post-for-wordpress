@@ -7,7 +7,7 @@
  *
  * @package    CSV_Post_Importer
  * @subpackage Admin
- * @since      1.0.0
+ * @since      1.5.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -66,22 +66,36 @@ class CPI_Admin {
 	// =========================================================================
 
 	/**
-	 * Register admin menu under Tools.
+	 * Register standalone top-level admin menu.
 	 *
-	 * @since 1.0.0
+	 * @since 1.5.1
 	 * @return void
 	 */
 	public function register_menu() {
-		add_management_page(
+		// Top-level menu — visible in the main sidebar.
+		add_menu_page(
 			__( 'CSV Post Importer', 'csv-post-importer' ),
-			__( 'CSV Post Importer', 'csv-post-importer' ),
+			__( 'CSV Importer', 'csv-post-importer' ),
+			'import',
+			'csv-post-importer',
+			array( $this, 'render_import_page' ),
+			'dashicons-media-spreadsheet',
+			30
+		);
+
+		// Rename the auto-created first submenu item.
+		add_submenu_page(
+			'csv-post-importer',
+			__( 'Import', 'csv-post-importer' ),
+			__( 'Import', 'csv-post-importer' ),
 			'import',
 			'csv-post-importer',
 			array( $this, 'render_import_page' )
 		);
 
+		// Import Logs submenu.
 		add_submenu_page(
-			'tools.php',
+			'csv-post-importer',
 			__( 'Import Logs', 'csv-post-importer' ),
 			__( 'Import Logs', 'csv-post-importer' ),
 			'import',
@@ -103,8 +117,8 @@ class CPI_Admin {
 	 */
 	public function enqueue_scripts( $hook ) {
 		$plugin_pages = array(
-			'tools_page_csv-post-importer',
-			'tools_page_csv-post-importer-logs',
+			'toplevel_page_csv-post-importer',
+			'csv-importer_page_csv-post-importer-logs',
 		);
 
 		if ( ! in_array( $hook, $plugin_pages, true ) ) {

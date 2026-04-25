@@ -3,6 +3,17 @@
 # Format: [Version] Date — Description
 # กฎ: ห้ามเขียนทับ — append only
 
+---
+
+## [1.5.1] 2026-04-26
+### Fixed (Chat E — Bug Fix: Menu not visible)
+- `csv-post-importer.php`: uncomment ทุก require ใน cpi_load_dependencies()
+  — class-cpi-csv-parser, class-cpi-post-creator, class-cpi-image-handler,
+    class-cpi-category-handler, class-cpi-admin ล้วนถูก comment ไว้ตั้งแต่ Chat A
+- `class-cpi-admin.php`: เปลี่ยน register_menu() จาก add_management_page() (Tools)
+  เป็น add_menu_page() standalone top-level menu พร้อม dashicons-media-spreadsheet
+  position 30; เพิ่ม submenu "Import" rename + "Import Logs"; แก้ enqueue_scripts()
+  hook suffix จาก tools_page_ เป็น toplevel_page_ และ csv-importer_page_
 
 ---
 

@@ -3,7 +3,7 @@
  * Plugin Name:       CSV Post Importer
  * Plugin URI:        https://github.com/your-repo/csv-post-importer
  * Description:       Import posts from CSV with featured image (Media Library or URL) and category/sub-category mapping, import modes, and error logging.
- * Version:           1.0.0
+ * Version:           1.5.1
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Webwecreate.com
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Plugin version. */
-define( 'CPI_VERSION', '1.0.0' );
+define( 'CPI_VERSION', '1.5.1' );
 
 /** Absolute path to plugin directory (with trailing slash). */
 define( 'CPI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -59,14 +59,14 @@ function cpi_load_dependencies() {
 		'includes/class-cpi-deactivator.php',
 		'includes/class-cpi-logger.php',
 
-		// Business logic (loaded on demand — uncomment in later Chats)
-		// 'includes/class-cpi-csv-parser.php',
-		// 'includes/class-cpi-post-creator.php',
-		// 'includes/class-cpi-image-handler.php',
-		// 'includes/class-cpi-category-handler.php',
+		// Business logic
+		'includes/class-cpi-csv-parser.php',
+		'includes/class-cpi-post-creator.php',
+		'includes/class-cpi-image-handler.php',
+		'includes/class-cpi-category-handler.php',
 
 		// Admin layer
-		// 'admin/class-cpi-admin.php',
+		'admin/class-cpi-admin.php',
 	);
 
 	foreach ( $includes as $file ) {
