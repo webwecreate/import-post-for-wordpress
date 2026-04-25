@@ -430,7 +430,7 @@ class CPI_Admin {
 
 			// Skip row if no title.
 			if ( empty( $row_data['post_title'] ) ) {
-				$logger->log( $import_id, $row_number + 1, '', CPI_Logger::STATUS_SKIPPED, __( 'Missing post title.', 'csv-post-importer' ) );
+				$logger->log( $import_id, $row_number + 1, '', 'skipped', __( 'Missing post title.', 'csv-post-importer' ) );
 				$summary['skipped']++;
 				continue;
 			}
@@ -439,7 +439,7 @@ class CPI_Admin {
 			$result = $creator->create_or_update( $row_data, $mapping, $import_id );
 
 			if ( is_wp_error( $result ) ) {
-				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], CPI_Logger::STATUS_ERROR, $result->get_error_message() );
+				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'error', $result->get_error_message() );
 				$summary['error']++;
 				continue;
 			}
@@ -448,20 +448,20 @@ class CPI_Admin {
 			$status  = $result['status']; // 'created' or 'updated' or 'skipped'
 
 			if ( 'skipped' === $status ) {
-				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], CPI_Logger::STATUS_SKIPPED, __( 'Post already exists (create mode).', 'csv-post-importer' ) );
+				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'skipped', __( 'Post already exists (create mode).', 'csv-post-importer' ) );
 				$summary['skipped']++;
 				continue;
 			}
 
-			$log_status = ( 'updated' === $status ) ? CPI_Logger::STATUS_UPDATED : CPI_Logger::STATUS_SUCCESS;
+			$log_status = ( 'updated' === $status ) ? 'updated' : 'success';
 
 			// Assign categories.
 			if ( ! empty( $row_data['category'] ) || ! empty( $row_data['parent_sub_category'] ) || ! empty( $row_data['sub_category'] ) ) {
 				$cat_result = $cat_handler->assign_categories( $post_id, $row_data, $mapping );
 				if ( is_wp_error( $cat_result ) ) {
-					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], CPI_Logger::STATUS_CATEGORY_ERROR, $cat_result->get_error_message() );
+					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'category_error', $cat_result->get_error_message() );
 					$summary['category_error']++;
-					$log_status = CPI_Logger::STATUS_CATEGORY_ERROR;
+					$log_status = 'category_error';
 				}
 			}
 
@@ -469,20 +469,20 @@ class CPI_Admin {
 			if ( ! empty( $row_data['featured_image'] ) ) {
 				$img_result = $img_handler->set_featured_image( $post_id, $row_data['featured_image'], $mapping['image_mode'] );
 				if ( is_wp_error( $img_result ) ) {
-					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], CPI_Logger::STATUS_IMAGE_ERROR, $img_result->get_error_message() );
+					$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'image_error', $img_result->get_error_message() );
 					$summary['image_error']++;
-					if ( CPI_Logger::STATUS_SUCCESS === $log_status || CPI_Logger::STATUS_UPDATED === $log_status ) {
-						$log_status = CPI_Logger::STATUS_IMAGE_ERROR;
+					if ( 'success' === $log_status || 'updated' === $log_status ) {
+						$log_status = 'image_error';
 					}
 				}
 			}
 
 			// Final success log.
-			if ( CPI_Logger::STATUS_SUCCESS === $log_status ) {
-				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], CPI_Logger::STATUS_SUCCESS, '' );
+			if ( 'success' === $log_status ) {
+				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'success', '' );
 				$summary['success']++;
-			} elseif ( CPI_Logger::STATUS_UPDATED === $log_status ) {
-				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], CPI_Logger::STATUS_UPDATED, '' );
+			} elseif ( 'updated' === $log_status ) {
+				$logger->log( $import_id, $row_number + 1, $row_data['post_title'], 'updated', '' );
 				$summary['updated']++;
 			}
 		}

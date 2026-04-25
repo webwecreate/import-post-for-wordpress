@@ -5,6 +5,16 @@
 
 ---
 
+## [1.5.3] 2026-04-26
+### Fixed (Chat E — Fatal: Undefined constant CPI_Logger::STATUS_*)
+- `class-cpi-admin.php`: แทนที่ CPI_Logger::STATUS_SUCCESS / STATUS_UPDATED /
+  STATUS_SKIPPED / STATUS_ERROR / STATUS_IMAGE_ERROR / STATUS_CATEGORY_ERROR
+  ด้วย string literals 'success' / 'updated' / 'skipped' / 'error' /
+  'image_error' / 'category_error' เนื่องจาก CPI_Logger ไม่มี class constants
+  เหล่านี้ — มีแค่ STATUSES array
+
+---
+
 ## [1.5.2] 2026-04-26
 ### Fixed (Chat E — Import 500 + Preview ครบทุก record)
 - `class-cpi-admin.php`:
