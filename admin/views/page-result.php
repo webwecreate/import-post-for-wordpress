@@ -34,8 +34,7 @@ $filter_status = isset( $_GET['filter_status'] ) ? sanitize_key( $_GET['filter_s
 $offset        = ( $current_page - 1 ) * $per_page;
 
 /* ── Fetch data ───────────────────────────────────────────────── */
-$logger  = new CPI_Logger();
-$summary = $import_id ? $logger->get_summary( $import_id ) : array();
+$summary = $import_id ? CPI_Logger::get_summary( $import_id ) : array();
 $total   = array_sum( $summary );
 
 $logs_args = array(
@@ -45,27 +44,26 @@ $logs_args = array(
 );
 
 if ( 'errors' === $filter_status ) {
-	// Show all non-success statuses by default.
-	$error_statuses = array( CPI_Logger::STATUS_ERROR, CPI_Logger::STATUS_IMAGE_ERROR, CPI_Logger::STATUS_CATEGORY_ERROR );
+	$error_statuses = array( 'error', 'image_error', 'category_error' );
 	$all_rows       = array();
 	foreach ( $error_statuses as $s ) {
-		$rows = $logger->get_logs( array_merge( $logs_args, array( 'status' => $s ) ) );
+		$rows = CPI_Logger::get_logs( $import_id, $s, $per_page, $offset );
 		if ( is_array( $rows ) ) {
 			$all_rows = array_merge( $all_rows, $rows );
 		}
 	}
 	$logs = $all_rows;
 } elseif ( 'all' === $filter_status ) {
-	$logs = $logger->get_logs( $logs_args );
+	$logs = CPI_Logger::get_logs( $import_id, null, $per_page, $offset );
 } else {
-	$logs = $logger->get_logs( array_merge( $logs_args, array( 'status' => $filter_status ) ) );
+	$logs = CPI_Logger::get_logs( $import_id, $filter_status, $per_page, $offset );
 }
 
 $logs = is_array( $logs ) ? $logs : array();
 
 /* ── Helpers ──────────────────────────────────────────────────── */
-$admin_url   = admin_url( 'tools.php?page=csv-post-importer' );
-$logs_url    = admin_url( 'tools.php?page=csv-post-importer-logs' );
+$admin_url   = admin_url( 'admin.php?page=csv-post-importer' );
+$logs_url    = admin_url( 'admin.php?page=csv-post-importer-logs' );
 
 /**
  * Return CSS class for a status badge.
@@ -75,12 +73,12 @@ $logs_url    = admin_url( 'tools.php?page=csv-post-importer-logs' );
  */
 function cpi_result_badge_class( $status ) {
 	$map = array(
-		CPI_Logger::STATUS_SUCCESS        => 'cpi-badge--success',
-		CPI_Logger::STATUS_UPDATED        => 'cpi-badge--updated',
-		CPI_Logger::STATUS_SKIPPED        => 'cpi-badge--skipped',
-		CPI_Logger::STATUS_ERROR          => 'cpi-badge--error',
-		CPI_Logger::STATUS_IMAGE_ERROR    => 'cpi-badge--image-error',
-		CPI_Logger::STATUS_CATEGORY_ERROR => 'cpi-badge--category-error',
+		'success'        => 'cpi-badge--success',
+		'updated'        => 'cpi-badge--updated',
+		'skipped'        => 'cpi-badge--skipped',
+		'error'          => 'cpi-badge--error',
+		'image_error'    => 'cpi-badge--image-error',
+		'category_error' => 'cpi-badge--category-error',
 	);
 	return isset( $map[ $status ] ) ? $map[ $status ] : 'cpi-badge--skipped';
 }
@@ -93,12 +91,12 @@ function cpi_result_badge_class( $status ) {
  */
 function cpi_result_status_label( $status ) {
 	$labels = array(
-		CPI_Logger::STATUS_SUCCESS        => __( 'Success', 'csv-post-importer' ),
-		CPI_Logger::STATUS_UPDATED        => __( 'Updated', 'csv-post-importer' ),
-		CPI_Logger::STATUS_SKIPPED        => __( 'Skipped', 'csv-post-importer' ),
-		CPI_Logger::STATUS_ERROR          => __( 'Error', 'csv-post-importer' ),
-		CPI_Logger::STATUS_IMAGE_ERROR    => __( 'Image Error', 'csv-post-importer' ),
-		CPI_Logger::STATUS_CATEGORY_ERROR => __( 'Category Error', 'csv-post-importer' ),
+		'success'        => __( 'Success', 'csv-post-importer' ),
+		'updated'        => __( 'Updated', 'csv-post-importer' ),
+		'skipped'        => __( 'Skipped', 'csv-post-importer' ),
+		'error'          => __( 'Error', 'csv-post-importer' ),
+		'image_error'    => __( 'Image Error', 'csv-post-importer' ),
+		'category_error' => __( 'Category Error', 'csv-post-importer' ),
 	);
 	return isset( $labels[ $status ] ) ? $labels[ $status ] : esc_html( $status );
 }
@@ -158,22 +156,22 @@ function cpi_result_status_label( $status ) {
 			</div>
 
 			<div class="cpi-stat-card cpi-stat-card--success">
-				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( $summary[ CPI_Logger::STATUS_SUCCESS ] ?? 0 ) ); ?></span>
+				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( $summary[ 'success' ] ?? 0 ) ); ?></span>
 				<span class="cpi-stat-card__label"><?php esc_html_e( 'Created', 'csv-post-importer' ); ?></span>
 			</div>
 
 			<div class="cpi-stat-card cpi-stat-card--updated">
-				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( $summary[ CPI_Logger::STATUS_UPDATED ] ?? 0 ) ); ?></span>
+				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( $summary[ 'updated' ] ?? 0 ) ); ?></span>
 				<span class="cpi-stat-card__label"><?php esc_html_e( 'Updated', 'csv-post-importer' ); ?></span>
 			</div>
 
 			<div class="cpi-stat-card cpi-stat-card--skipped">
-				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( $summary[ CPI_Logger::STATUS_SKIPPED ] ?? 0 ) ); ?></span>
+				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( $summary[ 'skipped' ] ?? 0 ) ); ?></span>
 				<span class="cpi-stat-card__label"><?php esc_html_e( 'Skipped', 'csv-post-importer' ); ?></span>
 			</div>
 
 			<div class="cpi-stat-card cpi-stat-card--error">
-				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( ( $summary[ CPI_Logger::STATUS_ERROR ] ?? 0 ) + ( $summary[ CPI_Logger::STATUS_IMAGE_ERROR ] ?? 0 ) + ( $summary[ CPI_Logger::STATUS_CATEGORY_ERROR ] ?? 0 ) ) ); ?></span>
+				<span class="cpi-stat-card__value"><?php echo esc_html( number_format_i18n( ( $summary[ 'error' ] ?? 0 ) + ( $summary[ 'image_error' ] ?? 0 ) + ( $summary[ 'category_error' ] ?? 0 ) ) ); ?></span>
 				<span class="cpi-stat-card__label"><?php esc_html_e( 'Errors', 'csv-post-importer' ); ?></span>
 			</div>
 
@@ -187,12 +185,12 @@ function cpi_result_status_label( $status ) {
 			$filter_options = array(
 				'errors'                        => __( 'Errors Only', 'csv-post-importer' ),
 				'all'                           => __( 'All Rows', 'csv-post-importer' ),
-				CPI_Logger::STATUS_SUCCESS      => __( 'Created', 'csv-post-importer' ),
-				CPI_Logger::STATUS_UPDATED      => __( 'Updated', 'csv-post-importer' ),
-				CPI_Logger::STATUS_SKIPPED      => __( 'Skipped', 'csv-post-importer' ),
-				CPI_Logger::STATUS_ERROR        => __( 'Error', 'csv-post-importer' ),
-				CPI_Logger::STATUS_IMAGE_ERROR  => __( 'Image Error', 'csv-post-importer' ),
-				CPI_Logger::STATUS_CATEGORY_ERROR => __( 'Category Error', 'csv-post-importer' ),
+				'success'      => __( 'Created', 'csv-post-importer' ),
+				'updated'      => __( 'Updated', 'csv-post-importer' ),
+				'skipped'      => __( 'Skipped', 'csv-post-importer' ),
+				'error'        => __( 'Error', 'csv-post-importer' ),
+				'image_error'  => __( 'Image Error', 'csv-post-importer' ),
+				'category_error' => __( 'Category Error', 'csv-post-importer' ),
 			);
 			foreach ( $filter_options as $val => $label ) :
 				$active_class = ( $filter_status === $val ) ? ' cpi-filter-btn--active' : '';
@@ -202,7 +200,7 @@ function cpi_result_status_label( $status ) {
 						'filter_status' => rawurlencode( $val ),
 						'paged'         => 1,
 					),
-					admin_url( 'tools.php?page=csv-post-importer&step=result' )
+					admin_url( 'admin.php?page=csv-post-importer&step=result' )
 				);
 				?>
 				<a href="<?php echo esc_url( $url ); ?>"
@@ -235,23 +233,23 @@ function cpi_result_status_label( $status ) {
 				<tbody>
 					<?php foreach ( $logs as $log ) : ?>
 						<tr>
-							<td><?php echo esc_html( $log->row_number ?? '—' ); ?></td>
-							<td><?php echo esc_html( $log->filename ?? '—' ); ?></td>
+							<td><?php echo esc_html( $log['row_number'] ?? '—' ); ?></td>
+							<td><?php echo esc_html( $log['filename'] ?? '—' ); ?></td>
 							<td>
 								<?php
 								// Attempt to decode JSON message for post title, fallback to filename.
-								$meta = ! empty( $log->message ) ? json_decode( $log->message, true ) : null;
-								echo esc_html( ( is_array( $meta ) && ! empty( $meta['title'] ) ) ? $meta['title'] : ( $log->filename ?? '—' ) );
+								$meta = ! empty( $log['message'] ) ? json_decode( $log['message'], true ) : null;
+								echo esc_html( ( is_array( $meta ) && ! empty( $meta['title'] ) ) ? $meta['title'] : ( $log['filename'] ?? '—' ) );
 								?>
 							</td>
 							<td>
-								<span class="cpi-badge <?php echo esc_attr( cpi_result_badge_class( $log->status ) ); ?>">
-									<?php echo esc_html( cpi_result_status_label( $log->status ) ); ?>
+								<span class="cpi-badge <?php echo esc_attr( cpi_result_badge_class( $log['status'] ) ); ?>">
+									<?php echo esc_html( cpi_result_status_label( $log['status'] ) ); ?>
 								</span>
 							</td>
 							<td class="cpi-result-message">
 								<?php
-								$msg = $log->message ?? '';
+								$msg = $log['message'] ?? '';
 								// If message is JSON, extract the 'message' key; else display raw.
 								$decoded = json_decode( $msg, true );
 								echo esc_html( ( is_array( $decoded ) && ! empty( $decoded['message'] ) ) ? $decoded['message'] : $msg );

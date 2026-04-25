@@ -5,6 +5,19 @@
 
 ---
 
+
+## [1.5.8] 2026-04-26
+### Fixed (Chat E — page-result.php fatal + wrong API calls)
+- `admin/views/page-result.php`:
+  - CPI_Logger::STATUS_* ทุกตัว → string literals
+  - tools.php URLs → admin.php
+  - get_logs() เปลี่ยนจาก instance call + associative array
+    เป็น static call + positional params (import_id, status, limit, offset)
+  - get_summary() เปลี่ยนเป็น static call
+  - $log->property ทุกตัว → $log['property'] (get_logs returns ARRAY_A)
+
+---
+
 ## [1.5.7] 2026-04-26
 ### Fixed (Chat E — wp_cpi_logs table doesn't exist)
 - `class-cpi-activator.php`: เพิ่ม maybe_setup() — เรียก create_upload_dir()
