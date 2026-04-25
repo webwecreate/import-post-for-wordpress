@@ -1,0 +1,51 @@
+# CHANGELOG
+# Plugin: CSV Post Importer
+# Format: [Version] Date — Description
+# กฎ: ห้ามเขียนทับ — append only
+
+
+---
+
+## [1.2.0] 2026-04-25
+### Added (Chat A — Bootstrap + Activator + Logger)
+- `csv-post-importer.php` — Plugin bootstrap: constants (CPI_VERSION, CPI_PLUGIN_DIR, CPI_PLUGIN_URL, CPI_UPLOAD_DIR, CPI_LOG_TABLE), cpi_load_dependencies(), activation/deactivation hooks, cpi_init() via plugins_loaded
+- `class-cpi-activator.php` — CPI_Activator::activate(): สร้าง uploads/ dir + .htaccess + index.php เพื่อป้องกัน direct access; สร้าง wp_cpi_logs table ด้วย dbDelta(); บันทึก cpi_db_version option
+- `class-cpi-deactivator.php` — CPI_Deactivator::deactivate(): ลบไฟล์ .csv ใน uploads/ dir; placeholder สำหรับ clear cron events
+- `class-cpi-logger.php` — CPI_Logger class:
+  - `log($import_id, $row_number, $filename, $status, $message)` — เขียน log 1 row
+  - `get_logs($import_id, $status, $limit, $offset)` — ดึง logs พร้อม filter
+  - `get_summary($import_id)` — สรุป count แยกตาม status
+  - `get_import_ids($limit)` — ดึง distinct import run IDs สำหรับ log viewer
+  - `clear_logs($import_id)` — ลบ logs ของ run เดียว
+  - `clear_all_logs()` — TRUNCATE ทั้งตาราง
+  - `generate_import_id()` — สร้าง unique import ID รูปแบบ cpi_YYYYMMDD_HHiiss_xxxxxx
+  - Status constants: success / updated / skipped / error / image_error / category_error
+
+---
+
+## [1.1.0] 2026-04-25
+### Added
+- Image mode: เลือกได้ระหว่าง Filename (ค้น Media Library) หรือ URL (download + import)
+- Import mode: Create new / Update existing
+- Unique key สำหรับ Update: post_title / post_id / post_slug / custom meta
+- Category Assign Mode: All levels / Deepest only / Custom
+- CPI_Logger class: บันทึก import log + error log ลง DB (wp_cpi_logs)
+- หน้า Import Logs (page-logs.php): ดู log, filter, clear logs
+- Status types: success / updated / skipped / error / image_error / category_error
+- Hooks เพิ่ม: cpi_before_update_post, cpi_after_update_post, cpi_category_assign_ids
+
+### Changed
+- Admin menu เพิ่ม submenu "Import Logs"
+- Section 5 Column Mapping เพิ่ม Assign Mode และ Import Mode
+- Chat Splitting Guide: Chat A เพิ่ม class-cpi-logger.php, Chat D เพิ่ม page-logs.php
+- Coding Standards เพิ่มกฎ: Error ทุกจุดต้อง log ผ่าน CPI_Logger
+
+---
+
+## [1.0.0] 2026-04-25
+### Added
+- Initial Master Architecture
+- File structure, class map, import flow 3 steps
+- Column mapping, image handling, category handling
+- Hooks & Filters planned
+- Coding standards และกฎ version control
