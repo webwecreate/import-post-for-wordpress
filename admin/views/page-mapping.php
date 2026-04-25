@@ -402,18 +402,29 @@ function cpi_mapping_options( $headers, $selected = '', $required = false ) {
 			</button>
 
 			<div id="cpi-preview-collapsed" style="display:none;">
+				<p class="cpi-preview-count">
+					<?php
+					printf(
+						/* translators: %d: total row count */
+						esc_html__( 'Total: %d rows', 'csv-post-importer' ),
+						count( $rows )
+					);
+					?>
+				</p>
 				<div class="cpi-table-wrap">
 					<table class="widefat cpi-preview-table">
 						<thead>
 							<tr>
+								<th class="cpi-col-rownum">#</th>
 								<?php foreach ( $headers as $header ) : ?>
 									<th><?php echo esc_html( $header ); ?></th>
 								<?php endforeach; ?>
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach ( $rows as $row ) : ?>
+							<?php foreach ( $rows as $i => $row ) : ?>
 								<tr>
+									<td class="cpi-col-rownum"><?php echo esc_html( $i + 1 ); ?></td>
 									<?php foreach ( $headers as $header ) : ?>
 										<td><?php echo esc_html( isset( $row[ $header ] ) ? $row[ $header ] : '' ); ?></td>
 									<?php endforeach; ?>
@@ -428,7 +439,7 @@ function cpi_mapping_options( $headers, $selected = '', $required = false ) {
 		<!-- Run Import Button -->
 		<div class="cpi-card cpi-card--actions">
 			<div class="cpi-import-actions">
-				<a href="<?php echo esc_url( admin_url( 'tools.php?page=csv-post-importer' ) ); ?>" class="button">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=csv-post-importer' ) ); ?>" class="button">
 					<?php esc_html_e( '← Back to Upload', 'csv-post-importer' ); ?>
 				</a>
 				<button type="button" id="cpi-btn-run-import" class="button button-primary button-large">

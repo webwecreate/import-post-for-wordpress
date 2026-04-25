@@ -5,6 +5,18 @@
 
 ---
 
+## [1.5.4] 2026-04-26
+### Fixed (Chat E — Preview ครบทุก record ใน Step 2)
+- `admin/views/page-mapping.php`:
+  - เพิ่ม label "Total: N rows" เหนือ preview table
+  - เพิ่มคอลัมน์ # (row number) นำหน้าทุก row
+  - แก้ปุ่ม "Back to Upload" URL จาก tools.php เป็น admin.php
+  - (ทำงานร่วมกับ class-cpi-admin.php v1.5.3 ที่เปลี่ยน
+    get_preview(5) เป็น parse() — ต้องอัปโหลด CSV ใหม่
+    เพื่อล้าง transient เก่า)
+
+---
+
 ## [1.5.3] 2026-04-26
 ### Fixed (Chat E — Fatal: Undefined constant CPI_Logger::STATUS_*)
 - `class-cpi-admin.php`: แทนที่ CPI_Logger::STATUS_SUCCESS / STATUS_UPDATED /
