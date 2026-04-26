@@ -110,17 +110,17 @@ class CPI_Activator {
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table_name} (
-			id          BIGINT(20)   UNSIGNED NOT NULL AUTO_INCREMENT,
-			import_id   VARCHAR(64)  NOT NULL DEFAULT '',
-			row_number  BIGINT(20)   UNSIGNED NOT NULL DEFAULT 0,
-			filename    VARCHAR(255) NOT NULL DEFAULT '',
-			status      VARCHAR(32)  NOT NULL DEFAULT '',
-			message     TEXT         NOT NULL,
-			created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY  (id),
-			KEY import_id  (import_id),
-			KEY status     (status),
-			KEY created_at (created_at)
+			`id`          BIGINT(20)   UNSIGNED NOT NULL AUTO_INCREMENT,
+			`import_id`   VARCHAR(64)  NOT NULL DEFAULT '',
+			`row_number`  BIGINT(20)   UNSIGNED NOT NULL DEFAULT 0,
+			`filename`    VARCHAR(255) NOT NULL DEFAULT '',
+			`status`      VARCHAR(32)  NOT NULL DEFAULT '',
+			`message`     TEXT         NOT NULL,
+			`created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (`id`),
+			KEY `import_id`  (`import_id`),
+			KEY `status`     (`status`),
+			KEY `created_at` (`created_at`)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';

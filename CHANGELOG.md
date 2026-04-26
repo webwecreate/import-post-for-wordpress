@@ -5,6 +5,14 @@
 
 ---
 
+## [1.5.9] 2026-04-26
+### Fixed (Chat E — CREATE TABLE SQL syntax error: row_number reserved keyword)
+- `class-cpi-activator.php`: ครอบทุก column name และ index name ใน
+  CREATE TABLE ด้วย backtick — `row_number` เป็น reserved keyword ใน
+  MariaDB 10.2+ ทำให้ dbDelta() fail เงียบๆ และ table ไม่ถูกสร้างเลย
+  แม้จะ deactivate/activate ซ้ำกี่ครั้งก็ตาม
+
+---
 
 ## [1.5.8] 2026-04-26
 ### Fixed (Chat E — page-result.php fatal + wrong API calls)
