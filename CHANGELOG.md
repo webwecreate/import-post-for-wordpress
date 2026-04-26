@@ -5,6 +5,20 @@
 
 ---
 
+## [1.5.10] 2026-04-26
+### Fixed (Chat E — page-logs.php fatal + wrong Logger API calls)
+- `admin/views/page-logs.php`:
+  - CPI_Logger::STATUS_* ทุกตัว → string literals
+  - tools.php URLs → admin.php
+  - get_import_ids/get_logs/get_summary → static calls
+  - get_logs() ใช้ positional params แทน associative array
+  - $run->import_id / $run->created_at → get_import_ids() return string[]
+    ปรับ dropdown loop ให้ parse date จาก import_id format แทน
+  - $log->property ทุกตัว → $log['property'] (ARRAY_A)
+  - Pagination count ใช้ CPI_Logger::get_logs() แทน instance call
+
+---
+
 ## [1.5.9] 2026-04-26
 ### Fixed (Chat E — CREATE TABLE SQL syntax error: row_number reserved keyword)
 - `class-cpi-activator.php`: ครอบทุก column name และ index name ใน
